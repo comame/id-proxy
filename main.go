@@ -43,16 +43,34 @@ func main() {
 	// TODO: リバースプロキシ
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		u, err := oidc.GenerateAuthenticationRequestUrl("hoge", env.OIDCClientID, redirectUri)
+		s, err := CreateCookieValue()
 		if err != nil {
 			panic(err)
 		}
 
+		u, err := oidc.GenerateAuthenticationRequestUrl(CalculateSession(s), env.OIDCClientID, redirectUri)
+		if err != nil {
+			panic(err)
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "__idproxy",
+			Value:    s,
+			Secure:   true,
+			HttpOnly: true,
+			SameSite: http.SameSiteStrictMode,
+		})
 		w.Header().Add("Location", u)
 		w.WriteHeader(http.StatusFound)
 	})
+
 	router.Get("/__idproxy/callback", func(w http.ResponseWriter, r *http.Request) {
-		payload, err := oidc.CallbackCode("hoge", toQueryMap(r), env.OIDCClientID, env.OIDCClientSecret, redirectUri)
+		co, err := r.Cookie("__idproxy")
+		if err != nil {
+			panic(err)
+		}
+
+		payload, err := oidc.CallbackCode(CalculateSession(co.Value), toQueryMap(r), env.OIDCClientID, env.OIDCClientSecret, redirectUri)
 		if err != nil {
 			log.Println(err)
 			io.WriteString(w, "err")

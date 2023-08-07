@@ -106,7 +106,12 @@ func CallbackCode(
 }
 
 func validateIdToken(idToken, nonce string) (*jwt.Payload, error) {
-	if err := jwt.Verify(idToken, GetJWK()); err != nil {
+	jwk := GetJWK()
+	if len(jwk.Keys) != 1 {
+		return nil, ErrSingleKeyIsSupported
+	}
+
+	if err := jwt.Verify(idToken, jwk.Keys[0]); err != nil {
 		return nil, err
 	}
 

@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
-	"math/big"
 	"strings"
 )
 
@@ -75,7 +74,7 @@ func Decode(idToken string) (*JWT, error) {
 	}, nil
 }
 
-func Verify(idToken string, jwk JWK) error {
+func Verify(idToken string, key JwkKey) error {
 	dec, err := Decode(idToken)
 	if err != nil {
 		return ErrInvalidJWTFormat
@@ -85,7 +84,7 @@ func Verify(idToken string, jwk JWK) error {
 		return ErrUnsupportedAlg
 	}
 
-	pk, err := pubkey(jwk)
+	pk, err := key.RsaPubkey()
 	if err != nil {
 		return ErrDecodeJWKSigningKey
 	}
@@ -113,27 +112,4 @@ func verifyRS256(msg string, sig []byte, pubkey *rsa.PublicKey) error {
 	}
 
 	return nil
-}
-
-func pubkey(jwk JWK) (*rsa.PublicKey, error) {
-	key := jwk.Keys[0]
-
-	nb, err := base64.RawURLEncoding.DecodeString(key.N)
-	if err != nil {
-		return nil, err
-	}
-
-	n := new(big.Int).SetBytes(nb)
-
-	ne, err := base64.RawURLEncoding.DecodeString(key.E)
-	if err != nil {
-		return nil, err
-	}
-
-	e := int(new(big.Int).SetBytes(ne).Int64())
-
-	return &rsa.PublicKey{
-		N: n,
-		E: e,
-	}, nil
 }

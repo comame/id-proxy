@@ -7,6 +7,7 @@ require (
 	github.com/comame/router-go v1.3.0
 	github.com/redis/go-redis/v9 v9.0.5
 	golang.org/x/exp v0.0.0-20230801115018-d63ba01acd4b
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

@@ -1,0 +1,5 @@
+sites:
+  - host: livestream.comame.xyz
+    pathPrefix: /
+    roles:
+      - everyone
