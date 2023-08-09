@@ -42,6 +42,19 @@ func init() {
 }
 
 func main() {
+	router.Get("/__idproxy/logout", func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{
+			Name:     "__idproxy",
+			Value:    "",
+			MaxAge:   -1,
+			Secure:   true,
+			HttpOnly: true,
+			SameSite: http.SameSiteLaxMode,
+			Path:     "/",
+		})
+		w.WriteHeader(http.StatusOK)
+	})
+
 	router.Get("/__idproxy/callback", func(w http.ResponseWriter, r *http.Request) {
 		r.URL.Host = r.Host
 		handleOIDCCallback(w, r)
@@ -107,7 +120,7 @@ func startSessionAndRedirect(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   24 * 3600,
 		Secure:   true,
 		HttpOnly: true,
-		SameSite: http.SameSiteNoneMode,
+		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
 	})
 	w.Header().Add("Location", u)
