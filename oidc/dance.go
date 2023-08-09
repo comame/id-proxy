@@ -23,20 +23,20 @@ var (
 	ErrInvalidSession              = errors.New("invalid session")
 )
 
-func GenerateAuthenticationRequestUrl(session string, clientId string, redirectUri string) (string, error) {
+func GenerateAuthenticationRequestUrl(session string, clientId string, redirectUri string) (redirectUrl, state string, err error) {
 	d := GetDiscovery()
 	u, err := url.Parse(d.AuthorizationEndpoint)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	state, err := random.String(16)
+	state, err = random.String(16)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	nonce, err := random.String(16)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	q := u.Query()
@@ -52,7 +52,7 @@ func GenerateAuthenticationRequestUrl(session string, clientId string, redirectU
 	kvs.Set("state:"+session, state, 600)
 	kvs.Set("nonce:"+session, nonce, 600)
 
-	return u.String(), nil
+	return u.String(), state, nil
 }
 
 func CallbackCode(

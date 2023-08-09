@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 
@@ -44,6 +45,10 @@ var (
 
 var cacheDiscovery *Discovery
 var cacheJwk *jwt.JWK
+
+func init() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+}
 
 func InitializeDiscovery(issuer string) error {
 	discovery, err := fetchDisvovery(issuer)
@@ -88,14 +93,17 @@ func fetchDisvovery(issuer string) (*Discovery, error) {
 
 	res, err := http.Get(u.String())
 	if err != nil {
+		log.Println(err)
 		return nil, ErrFailFetchDiscovery
 	}
 	if res.StatusCode != http.StatusOK {
+		log.Println("status code is not 200")
 		return nil, ErrFailFetchDiscovery
 	}
 
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
+		log.Println(err)
 		return nil, ErrFailFetchDiscovery
 	}
 

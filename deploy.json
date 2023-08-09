@@ -1,0 +1,5 @@
+{
+  "namespace": "id-proxy",
+  "name": "id-proxy",
+  "prebuild": "go build ."
+}

@@ -1,5 +1,11 @@
 sites:
   - host: livestream.comame.xyz
-    pathPrefix: /
+    pathPrefix: /hls/music-radio-20230711
     roles:
-      - everyone
+      - livestream-music-radio
+    backend: http://livestream-http.livestream.svc.cluster.local:8080
+  - host: livestream.comame.xyz
+    pathPrefix: /viewer/music-radio-20230711
+    roles:
+      - livestream-music-radio
+    backend: http://livestream-viewer.livestream.svc.cluster.local:8080
