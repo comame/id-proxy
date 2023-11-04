@@ -3,6 +3,7 @@ package oidc
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -77,15 +78,15 @@ func CallbackCode(
 	// state の検証
 	savedState, err := kvs.Get("state:" + session)
 	if err != nil {
-		return nil, ErrInvalidSession
+		return nil, fmt.Errorf("state が kvs に保存されていない %w", err)
 	}
 	if savedState != state {
-		return nil, ErrInvalidSession
+		return nil, fmt.Errorf("state が違う expect:%s, got:%s", savedState, state)
 	}
 
 	nonce, err := kvs.Get("nonce:" + session)
 	if err != nil {
-		return nil, ErrInvalidSession
+		return nil, fmt.Errorf("nonce がない %w", err)
 	}
 	defer func() {
 		kvs.Del("nonce:" + session)
