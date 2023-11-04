@@ -117,7 +117,7 @@ func startSessionAndRedirect(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "__idproxy",
 		Value:    s,
-		MaxAge:   24 * 3600,
+		MaxAge:   3 * 24 * 3600,
 		Secure:   true,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,

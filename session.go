@@ -25,7 +25,7 @@ func CalculateSession(cookie string) string {
 
 func SaveAccessMap(session, accessMap string) error {
 	k := "ACCESS:" + session
-	if err := kvs.Set(k, accessMap, 24*3600); err != nil {
+	if err := kvs.Set(k, accessMap, 3*24*3600); err != nil {
 		return err
 	}
 	return nil
