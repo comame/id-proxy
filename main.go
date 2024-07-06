@@ -60,7 +60,7 @@ func main() {
 		handleOIDCCallback(w, r)
 	})
 
-	router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+	router.All("/*", func(w http.ResponseWriter, r *http.Request) {
 		r.URL.Host = r.Host
 
 		c, err := r.Cookie("__idproxy")
