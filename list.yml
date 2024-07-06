@@ -14,3 +14,9 @@ sites:
     roles:
       - comame
     backend: http://itl-web.comame-xyz.svc.cluster.local:8080
+  - host: redash.comame.xyz
+    pathPrefix: /
+    roles:
+      - comame
+    backend: http://redash.redash.svc.cluster.local:5000
+    disguiseHostHeader: true
