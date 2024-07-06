@@ -14,10 +14,11 @@ import (
 )
 
 type Site struct {
-	Host       string   `yaml:"host"`
-	PathPrefix string   `yaml:"pathPrefix"`
-	Roles      []string `yaml:"roles"`
-	Backend    string   `yaml:"backend"`
+	Host               string   `yaml:"host"`
+	PathPrefix         string   `yaml:"pathPrefix"`
+	Roles              []string `yaml:"roles"`
+	Backend            string   `yaml:"backend"`
+	DisguiseHostHeader bool     `yaml:"disguiseHostHeader"`
 }
 
 type SettingList struct {
@@ -43,7 +44,7 @@ func Initialize(listYml string) SettingList {
 }
 
 func CanAccess(requestUrl url.URL, accessMap string) bool {
-	siteIndex, err := findMatchSite(requestUrl, *_listCache)
+	siteIndex, err := findMatchSiteIndex(requestUrl, *_listCache)
 	if err != nil {
 		log.Println("対応するサイトが見つからない")
 		return false
@@ -58,8 +59,18 @@ func CanAccess(requestUrl url.URL, accessMap string) bool {
 	return slices.Contains(m, siteIndex)
 }
 
+func SiteConfig(requestUrl url.URL) (*Site, error) {
+	site, err := findMatchSite(requestUrl, *_listCache)
+	if err != nil {
+		log.Println("対応するサイトがない")
+		return nil, err
+	}
+
+	return site, nil
+}
+
 func BackendURL(requestUrl url.URL) string {
-	siteIndex, err := findMatchSite(requestUrl, *_listCache)
+	siteIndex, err := findMatchSiteIndex(requestUrl, *_listCache)
 	if err != nil {
 		return ""
 	}
@@ -100,7 +111,7 @@ func getAvailableSitesIndex(roles []string, list SettingList) []int {
 	return r
 }
 
-func findMatchSite(target url.URL, list SettingList) (int, error) {
+func findMatchSiteIndex(target url.URL, list SettingList) (int, error) {
 	for i, site := range list.Sites {
 		if target.Host != site.Host {
 			continue
@@ -112,4 +123,13 @@ func findMatchSite(target url.URL, list SettingList) (int, error) {
 	}
 
 	return 0, errors.New("not found")
+}
+
+func findMatchSite(target url.URL, list SettingList) (*Site, error) {
+	i, err := findMatchSiteIndex(target, list)
+	if err != nil {
+		return nil, err
+	}
+
+	return &list.Sites[i], nil
 }

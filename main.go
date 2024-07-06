@@ -87,9 +87,21 @@ func main() {
 
 		u, _ := url.Parse(access.BackendURL(*r.URL))
 
+		site, err := access.SiteConfig(*r.URL)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusBadRequest)
+			io.WriteString(w, "URL に対応するコンフィグが投入されていない")
+			return
+		}
+
 		rp := &httputil.ReverseProxy{
 			Rewrite: func(pr *httputil.ProxyRequest) {
 				pr.SetURL(u)
+				if site.DisguiseHostHeader {
+					// リクエスト本来の Host ヘッダーに偽装する
+					pr.Out.Host = pr.In.Host
+				}
 			},
 		}
 		rp.ServeHTTP(w, r)
